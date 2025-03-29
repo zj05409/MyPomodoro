@@ -1,0 +1,186 @@
+.settings-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.settings-modal {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    z-index: 1001;
+}
+
+.settings-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.settings-header h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #777;
+}
+
+.close-button:hover {
+    color: #333;
+}
+
+.settings-content {
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.settings-section h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    color: #555;
+    font-size: 1.2rem;
+}
+
+.setting-item {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.setting-item label {
+    flex: 1;
+    margin-right: 12px;
+}
+
+.setting-item input[type="number"] {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.setting-item.checkbox {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+.setting-item.checkbox label {
+    margin-left: 8px;
+    margin-right: 0;
+}
+
+.setting-item.slider {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.setting-item.slider input {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.settings-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px;
+    border-top: 1px solid #eee;
+    gap: 8px;
+}
+
+.button-primary {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button-primary:hover {
+    background-color: #c0392b;
+}
+
+.button-secondary {
+    background-color: #f2f2f2;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button-secondary:hover {
+    background-color: #e6e6e6;
+}
+
+/* 暗黑模式支持 */
+@media (prefers-color-scheme: dark) {
+    .settings-modal {
+        background-color: #1a1a1a;
+    }
+
+    .settings-header {
+        border-bottom-color: #333;
+    }
+
+    .settings-header h2 {
+        color: #eee;
+    }
+
+    .close-button {
+        color: #aaa;
+    }
+
+    .close-button:hover {
+        color: #eee;
+    }
+
+    .settings-section h3 {
+        color: #ccc;
+    }
+
+    .setting-item input[type="number"] {
+        background-color: #333;
+        border-color: #444;
+        color: #eee;
+    }
+
+    .settings-footer {
+        border-top-color: #333;
+    }
+
+    .button-secondary {
+        background-color: #333;
+        color: #eee;
+        border-color: #444;
+    }
+
+    .button-secondary:hover {
+        background-color: #444;
+    }
+}

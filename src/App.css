@@ -1,0 +1,13 @@
+/* App.css 已由 Tailwind 样式替代 */
+
+.app-container {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 如果已经在index.css中定义了这些样式，可以删除重复的部分 */
