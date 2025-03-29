@@ -1,0 +1,88 @@
+{
+  "name": "my-pomodoro",
+  "version": "1.0.0",
+  "description": "番茄工作法计时器应用",
+  "main": "electron/main.cjs",
+  "author": {
+    "name": "Jacob",
+    "email": "zj05409@gmail.com"
+  },
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zj05409/MyPomodoro.git"
+  },
+  "bugs": {
+    "url": "https://github.com/zj05409/MyPomodoro/issues"
+  },
+  "homepage": "https://github.com/zj05409/MyPomodoro#readme",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "electron:dev": "concurrently \"npm run dev\" \"electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:package": "npm run build && electron-builder",
+    "package:mac": "npm run build && electron-builder --mac",
+    "package:win": "npm run build && electron-builder --win",
+    "package:linux": "npm run build && electron-builder --linux",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "keywords": [
+    "pomodoro",
+    "timer",
+    "productivity"
+  ],
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "autoprefixer": "^10.4.14",
+    "concurrently": "^8.2.0",
+    "electron": "^25.3.2",
+    "electron-builder": "^24.6.3",
+    "eslint": "^8.45.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.3",
+    "postcss": "^8.4.27",
+    "tailwindcss": "^3.3.3",
+    "vite": "^4.4.5"
+  },
+  "build": {
+    "appId": "com.thycoder.mypomodoro",
+    "productName": "MyPomodoro",
+    "directories": {
+      "output": "release/"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "public/tomato.png"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "public/tomato.png"
+    },
+    "linux": {
+      "target": [
+        "deb",
+        "AppImage"
+      ],
+      "category": "Utility",
+      "icon": "public/tomato.png"
+    }
+  }
+}
