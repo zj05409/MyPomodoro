@@ -82,7 +82,7 @@ MyPomodoro/
 
 ## 问题反馈
 
-如发现任何问题，请在 [Issues](https://github.com/yourusername/MyPomodoro/issues) 页面提交。
+如发现任何问题，请在 [Issues](https://github.com/zj05409/MyPomodoro/issues) 页面提交。
 
 ## 许可证
 
