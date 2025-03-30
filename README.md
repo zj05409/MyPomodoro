@@ -19,7 +19,7 @@
 
 ## 下载安装
 
-访问 [Releases](https://github.com/yourusername/MyPomodoro/releases) 页面下载最新版本的安装包：
+访问 [Releases](https://github.com/zj05409/MyPomodoro/releases) 页面下载最新版本的安装包：
 
 - Windows: `.exe` 安装文件
 - macOS: `.dmg` 安装文件
