@@ -1,6 +1,6 @@
 {
   "name": "my-pomodoro",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "番茄工作法计时器应用",
   "main": "electron/main.cjs",
   "author": {
