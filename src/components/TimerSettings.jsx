@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import './TimerSettings.css';
 
 const TimerSettings = ({
-    isOpen,
     onClose,
+    onSave,
     pomodoroTime,
     shortBreakTime,
     longBreakTime,
@@ -12,7 +12,7 @@ const TimerSettings = ({
     autoStartPomodoros,
     alarmVolume,
     tickingVolume,
-    onSettingsChange
+    tickingInterval = 1000
 }) => {
     const [settings, setSettings] = useState({
         pomodoroTime,
@@ -22,7 +22,8 @@ const TimerSettings = ({
         autoStartBreaks,
         autoStartPomodoros,
         alarmVolume,
-        tickingVolume
+        tickingVolume,
+        tickingInterval
     });
 
     const handleInputChange = (e) => {
@@ -51,13 +52,16 @@ const TimerSettings = ({
             case 'longBreakInterval':
                 validatedValue = Math.max(1, Math.min(10, numValue));
                 break;
+            case 'tickingInterval':
+                validatedValue = Math.max(500, Math.min(2000, numValue));
+                break;
         }
 
         setSettings({ ...settings, [name]: validatedValue });
     };
 
     const handleSave = () => {
-        onSettingsChange(settings);
+        onSave(settings);
         onClose();
     };
 
@@ -70,12 +74,11 @@ const TimerSettings = ({
             autoStartBreaks,
             autoStartPomodoros,
             alarmVolume,
-            tickingVolume
+            tickingVolume,
+            tickingInterval
         });
         onClose();
     };
-
-    if (!isOpen) return null;
 
     return (
         <div className="settings-overlay">
@@ -199,6 +202,20 @@ const TimerSettings = ({
                                 min="0"
                                 max="100"
                                 value={settings.tickingVolume}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className="setting-item slider">
+                            <label htmlFor="tickingInterval">滴答声间隔: {settings.tickingInterval}毫秒</label>
+                            <input
+                                id="tickingInterval"
+                                type="range"
+                                name="tickingInterval"
+                                min="500"
+                                max="2000"
+                                step="100"
+                                value={settings.tickingInterval}
                                 onChange={handleInputChange}
                             />
                         </div>

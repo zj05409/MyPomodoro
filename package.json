@@ -22,7 +22,8 @@
     "build": "vite build",
     "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "electron:dev": "concurrently \"npm run dev\" \"electron .\"",
+    "electron:dev": "cross-env NODE_ENV=development concurrently \"npm run dev\" \"electron .\"",
+    "electron:debug": "cross-env NODE_ENV=development ELECTRON_DEBUG=true concurrently \"npm run dev\" \"electron --inspect=5858 .\"",
     "electron:build": "npm run build && electron-builder",
     "electron:package": "npm run build && electron-builder",
     "package:mac": "npm run build && electron-builder --mac",
@@ -36,6 +37,8 @@
     "productivity"
   ],
   "dependencies": {
+    "os": "^0.1.2",
+    "path": "^0.12.7",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -45,8 +48,10 @@
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.14",
     "concurrently": "^8.2.0",
+    "cross-env": "^7.0.3",
     "electron": "^25.3.2",
     "electron-builder": "^24.6.3",
+    "electron-devtools-installer": "^4.0.0",
     "eslint": "^8.45.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
