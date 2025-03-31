@@ -68,7 +68,38 @@ try {
         minimizeToTray: () => safeIpcInvoke('minimize-to-tray'),
 
         // 获取应用资源路径
-        getResourcePath: (resourceName) => safeIpcInvoke('get-resource-path', resourceName),
+        getResourcePath: async (resourceName) => {
+            try {
+                logMessage(`请求资源路径: ${resourceName}`);
+
+                // 尝试通过main进程获取路径
+                const mainPath = await safeIpcInvoke('get-resource-path', resourceName);
+                logMessage(`从main进程获取的路径: ${mainPath}`);
+
+                // 尝试验证文件是否可访问 (简单的HTTP请求)
+                try {
+                    const isProduction = !process.env.NODE_ENV || process.env.NODE_ENV === 'production';
+                    if (isProduction) {
+                        logMessage(`生产环境中，尝试验证文件: ${mainPath}`);
+                        // 由于无法直接验证文件系统，返回可能的路径选项
+                        return {
+                            main: mainPath,
+                            relative: `./${resourceName}`,
+                            absolute: mainPath,
+                            app: `./resources/app/${resourceName}`
+                        };
+                    }
+                } catch (validateErr) {
+                    logMessage(`文件验证失败: ${validateErr.message}`, 'error');
+                }
+
+                return mainPath;
+            } catch (error) {
+                logMessage(`获取资源路径失败: ${error.message}`, 'error');
+                // 返回备用路径
+                return `./${resourceName}`;
+            }
+        },
 
         // 添加调试功能
         debug: {

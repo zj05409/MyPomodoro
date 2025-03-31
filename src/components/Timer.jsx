@@ -606,14 +606,39 @@ const Timer = memo(({
 
         const loadAudio = async () => {
             try {
-                let alarmPath = '/alarm.mp3';
-                let tickingPath = '/ticking.mp3';
+                // 默认路径 - 相对路径
+                let alarmPath = './alarm.mp3';
+                let tickingPath = './ticking.mp3';
 
                 // 如果在Electron环境中，尝试使用API获取路径
                 if (isElectronEnv && window.electronAPI?.getResourcePath) {
                     try {
-                        alarmPath = await window.electronAPI.getResourcePath('alarm.mp3');
-                        tickingPath = await window.electronAPI.getResourcePath('ticking.mp3');
+                        const alarmResult = await window.electronAPI.getResourcePath('alarm.mp3');
+                        const tickingResult = await window.electronAPI.getResourcePath('ticking.mp3');
+
+                        // 检查结果类型 - 可能是字符串或对象列表
+                        if (typeof alarmResult === 'string') {
+                            alarmPath = alarmResult;
+                        } else if (alarmResult && typeof alarmResult === 'object') {
+                            // 如果是路径对象或数组，使用第一个条目
+                            if (Array.isArray(alarmResult)) {
+                                alarmPath = alarmResult[0];
+                            } else {
+                                alarmPath = alarmResult.relative || alarmResult.main || alarmResult;
+                            }
+                        }
+
+                        if (typeof tickingResult === 'string') {
+                            tickingPath = tickingResult;
+                        } else if (tickingResult && typeof tickingResult === 'object') {
+                            // 如果是路径对象或数组，使用第一个条目
+                            if (Array.isArray(tickingResult)) {
+                                tickingPath = tickingResult[0];
+                            } else {
+                                tickingPath = tickingResult.relative || tickingResult.main || tickingResult;
+                            }
+                        }
+
                         console.log('从Electron获取音频路径:', { alarmPath, tickingPath });
                     } catch (error) {
                         console.error('无法从Electron获取资源路径:', error);
@@ -622,53 +647,80 @@ const Timer = memo(({
                     console.log('Web环境使用标准路径');
                 }
 
-                // 创建音频元素
-                const alarmEl = new Audio(alarmPath);
-                const tickingEl = new Audio(tickingPath);
+                // 尝试创建音频元素
+                const loadSingleAudio = async (path, name) => {
+                    return new Promise((resolve) => {
+                        console.log(`尝试加载${name}音频: ${path}`);
+                        const audio = new Audio(path);
+                        audio.preload = 'auto';
 
-                // 设置音频属性
-                alarmEl.preload = 'auto';
-                tickingEl.preload = 'auto';
+                        // 成功事件
+                        audio.addEventListener('canplaythrough', () => {
+                            console.log(`${name}音频加载成功: ${path}`);
+                            resolve(audio);
+                        }, { once: true });
 
-                // 调试信息
-                console.log('音频路径:', { alarmPath, tickingPath });
+                        // 失败事件
+                        audio.addEventListener('error', (e) => {
+                            console.error(`${name}音频加载失败: ${path}`, e.target.error);
+                            resolve(null); // 解析为null，表示加载失败
+                        }, { once: true });
 
-                // 错误处理
-                alarmEl.addEventListener('error', (e) => {
-                    console.error('闹钟音频加载失败:', e.target.error);
+                        // 开始加载
+                        audio.load();
 
-                    // 回退方案: 尝试硬编码路径
-                    const fallbackAlarm = new Audio('./public/alarm.mp3');
-                    fallbackAlarm.preload = 'auto';
-                    fallbackAlarm.addEventListener('canplaythrough', () => {
-                        console.log('回退闹钟音频已加载');
-                        alarmSound.current = fallbackAlarm;
+                        // 5秒超时
+                        setTimeout(() => {
+                            if (!audio.readyState) {
+                                console.warn(`${name}音频加载超时: ${path}`);
+                                resolve(null);
+                            }
+                        }, 5000);
                     });
-                });
+                };
 
-                tickingEl.addEventListener('error', (e) => {
-                    console.error('滴答声音频加载失败:', e.target.error);
+                // 尝试按优先级加载音频
+                const tryLoadAudio = async (paths, name) => {
+                    // 如果是字符串，转换为数组
+                    const pathsToTry = typeof paths === 'string' ? [paths] :
+                        Array.isArray(paths) ? paths :
+                            [paths];
 
-                    // 回退方案: 尝试硬编码路径
-                    const fallbackTicking = new Audio('./public/ticking.mp3');
-                    fallbackTicking.preload = 'auto';
-                    fallbackTicking.addEventListener('canplaythrough', () => {
-                        console.log('回退滴答声音频已加载');
-                        tickingSound.current = fallbackTicking;
-                    });
-                });
+                    // 添加一些备选路径
+                    const allPaths = [
+                        ...pathsToTry,
+                        `./${name}.mp3`,
+                        `/${name}.mp3`,
+                        `../public/${name}.mp3`,
+                        `./public/${name}.mp3`,
+                        `./assets/${name}.mp3`,
+                        `/assets/${name}.mp3`
+                    ];
+
+                    // 尝试每个路径
+                    for (const path of allPaths) {
+                        const audio = await loadSingleAudio(path, name);
+                        if (audio) return audio;
+                    }
+
+                    // 所有路径都失败，创建一个空的音频元素
+                    console.error(`所有${name}音频路径加载失败`);
+                    return new Audio();
+                };
+
+                // 加载音频文件
+                const alarm = await tryLoadAudio(alarmPath, 'alarm');
+                const ticking = await tryLoadAudio(tickingPath, 'ticking');
 
                 // 设置引用
-                alarmSound.current = alarmEl;
-                tickingSound.current = tickingEl;
+                alarmSound.current = alarm;
+                tickingSound.current = ticking;
 
                 // 设置音量
-                alarmSound.current.volume = alarmVolume / 100;
-                tickingSound.current.volume = tickingVolume / 100;
+                if (alarmSound.current) alarmSound.current.volume = alarmVolume / 100;
+                if (tickingSound.current) tickingSound.current.volume = tickingVolume / 100;
 
-                // 尝试预加载
-                alarmEl.load();
-                tickingEl.load();
+                console.log('音频初始化完成');
             } catch (error) {
                 console.error('音频初始化失败:', error);
             }

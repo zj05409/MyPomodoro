@@ -116,9 +116,11 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.cjs'),
             nodeIntegration: false,
             contextIsolation: true,
-            // 确保允许打开开发者工具
+            sandbox: true,
             devTools: true,
             webSecurity: isDev ? false : true,
+            enableRemoteModule: false,
+            enableWebSQL: false,
         },
         icon: path.join(__dirname, '../public/tomato.png'),
         show: false, // 不立即显示窗口
@@ -186,16 +188,7 @@ async function createWindow() {
                 // 使用更直接的方法打开开发者工具
                 setTimeout(() => {
                     console.log('延迟打开开发者工具');
-                    mainWindow.webContents.openDevTools();
-
-                    // 尝试强制焦点到开发者工具
-                    const devToolsWindow = new BrowserWindow({
-                        show: true,
-                        autoHideMenuBar: false,
-                        titleBarStyle: 'default'
-                    });
-                    mainWindow.webContents.setDevToolsWebContents(devToolsWindow.webContents);
-                    mainWindow.webContents.openDevTools({ mode: 'detach' });
+                    mainWindow.webContents.openDevTools({ mode: 'right' });
                 }, 2000);
             } catch (error) {
                 console.error('打开开发者工具失败:', error);
@@ -210,7 +203,16 @@ async function createWindow() {
             });
         } else {
             console.log('加载生产环境构建文件');
-            mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+            // 修改生产环境下的加载路径
+            const indexPath = path.join(__dirname, '../dist/index.html');
+            console.log('加载路径:', indexPath);
+            mainWindow.loadFile(indexPath).catch(error => {
+                console.error('加载生产环境文件失败:', error);
+                // 尝试使用 file:// 协议加载
+                mainWindow.loadURL(`file://${indexPath}`).catch(err => {
+                    console.error('使用 file:// 协议加载失败:', err);
+                });
+            });
         }
 
         // 设置文件协议，使得加载本地音频文件更容易
@@ -336,10 +338,32 @@ ipcMain.handle('minimize-to-tray', () => {
 // 处理资源路径请求
 ipcMain.handle('get-resource-path', (event, resourceName) => {
     try {
-        return path.join(process.resourcesPath, 'app', 'public', resourceName);
+        const isDev = process.env.NODE_ENV === 'development';
+
+        // 生产环境中的资源路径查找策略
+        if (!isDev) {
+            // 尝试多个可能的路径
+            const possiblePaths = [
+                path.join(app.getAppPath(), resourceName),                  // 应用根目录
+                path.join(app.getAppPath(), 'dist', resourceName),          // dist目录
+                path.join(process.resourcesPath, 'app', resourceName),      // resources/app目录
+                path.join(process.resourcesPath, 'app', 'dist', resourceName), // resources/app/dist目录
+                path.join(__dirname, '..', resourceName),                   // 相对于main.js的上级目录
+                path.join(__dirname, '..', 'dist', resourceName),           // 相对于main.js的上级dist目录
+            ];
+
+            // 记录所有可能的路径
+            console.log('可能的资源路径:', possiblePaths);
+
+            // 返回第一个存在的路径 (在渲染进程中尝试)
+            return possiblePaths;
+        }
+
+        // 开发环境
+        return path.join(app.getAppPath(), 'public', resourceName);
     } catch (error) {
         console.error('获取资源路径出错:', error);
-        return `app/public/${resourceName}`;
+        return `./${resourceName}`;
     }
 })
 

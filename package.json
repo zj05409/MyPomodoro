@@ -25,7 +25,7 @@
     "electron:dev": "cross-env NODE_ENV=development concurrently \"npm run dev\" \"electron .\"",
     "electron:debug": "cross-env NODE_ENV=development ELECTRON_DEBUG=true concurrently \"npm run dev\" \"electron --inspect=5858 .\"",
     "electron:build": "npm run build && electron-builder",
-    "electron:package": "npm run build && electron-builder",
+    "electron:package": "npm run build && electron-builder -mwl",
     "package:mac": "npm run build && electron-builder --mac",
     "package:win": "npm run build && electron-builder --win",
     "package:linux": "npm run build && electron-builder --linux",
@@ -58,6 +58,7 @@
     "eslint-plugin-react-refresh": "^0.4.3",
     "postcss": "^8.4.27",
     "tailwindcss": "^3.3.3",
+    "terser": "^5.39.0",
     "vite": "^4.4.5"
   },
   "build": {
